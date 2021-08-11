@@ -12,8 +12,7 @@ declare global {
 
   // Memory extension samples
   interface Memory {
-    uuid: number;
-    log: any;
+    sourceMap: Map<string, Source>;
   }
 
   interface CreepMemory {
@@ -23,6 +22,7 @@ declare global {
   }
 
   // Syntax for adding proprties to `global` (ex "global.log")
+  // eslint-disable-next-line @typescript-eslint/no-namespace
   namespace NodeJS {
     interface Global {
       log: any;
@@ -34,11 +34,16 @@ declare global {
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
   if (Game.time % 10 === 0) {
+    if (typeof Memory.sourceMap === "undefined") {
+      console.log("初始化Memory.sourceMap");
+      Memory.sourceMap = new Map<string, Source>();
+    }
     for (const roomName in Game.rooms) {
       Game.rooms[roomName].find(FIND_SOURCES).forEach(source => {
-        console.log(JSON.stringify(source));
+        Memory.sourceMap.set(source.id, source);
       });
     }
+    console.log("Test\n" + JSON.stringify(Memory) + "\nEnd Test");
   }
   // Automatically delete memory of missing creeps
   for (const name in Memory.creeps) {
