@@ -12,7 +12,7 @@ declare global {
 
   // Memory extension samples
   interface Memory {
-    sourceMap: Map<string, Source>;
+    sourceMap: { [sourceID: string]: Source };
   }
 
   interface CreepMemory {
@@ -33,22 +33,22 @@ declare global {
 // When compiling TS to JS and bundling with rollup, the line numbers and file names in error messages change
 // This utility uses source maps to get the line numbers and file names of the original, TS source code
 export const loop = ErrorMapper.wrapLoop(() => {
-  if (Game.time % 10 === 0) {
-    if (typeof Memory.sourceMap === "undefined") {
-      console.log("初始化Memory.sourceMap");
-      Memory.sourceMap = new Map<string, Source>();
-    }
+  console.log(`Current game tick is ${Game.time}`);
+  if (Game.time % 1000 === 0) {
+    // 刷新缓存能量源
+    Memory.sourceMap = {};
     for (const roomName in Game.rooms) {
       Game.rooms[roomName].find(FIND_SOURCES).forEach(source => {
-        Memory.sourceMap.set(source.id, source);
+        Memory.sourceMap[source.id] = source;
+        console.log("重新缓存能量源对象：" + JSON.stringify(source));
       });
     }
-    console.log("Test\n" + JSON.stringify(Memory) + "\nEnd Test");
   }
-  // Automatically delete memory of missing creeps
+  // 删除无效creep
   for (const name in Memory.creeps) {
     if (!(name in Game.creeps)) {
       delete Memory.creeps[name];
+      console.log("删除无效creep：" + name);
     }
   }
 });
