@@ -44,11 +44,11 @@ export const loop = ErrorMapper.wrapLoop(() => {
       });
     }
   }
-  // 删除无效creep
+  // 删除无效creep缓存
   for (const name in Memory.creeps) {
     if (!(name in Game.creeps)) {
       delete Memory.creeps[name];
-      console.log("删除无效creep：" + name);
+      console.log("删除无效creep缓存：" + name);
     }
   }
 });
